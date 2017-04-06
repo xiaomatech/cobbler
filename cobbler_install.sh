@@ -5,7 +5,8 @@ echoerror() {
 
 #此cobbler 需要管理的网段
 DHCP_RANGE=10.3.1.10,10.3.252.252
-
+DOMAIN_SUFFIX='meizu.mz'
+ROUTE_IP='10.4.10.3'
 #cobbler 的 ip 一般为本机ip
 SERVER=`LC_ALL=C /sbin/ifconfig  | grep 'inet'| grep -v '127.0.0.1' |head -n1 |tr -s ' '|cut -d ' ' -f3 | cut -d: -f2`
 if [ "$SERVER" == '' ]; then
@@ -18,7 +19,41 @@ if [ ! -f /root/.ssh/id_rsa.pub ]; then
 	ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ''
 fi
 
-yum -y install xinetd tftp-server cobbler cobbler-web dnsmasq ansible
+yum -y install xinetd tftp-server cobbler cobbler-web dnsmasq ansible ntp ntpdate
+
+cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+ntpdate 1.cn.pool.ntp.org && hwclock -w
+
+echo -ne "
+restrict default ignore
+restrict 127.0.0.1
+restrict 10.0.0.0 mask 255.0.0.0
+server 0.cn.pool.ntp.org
+server 1.cn.pool.ntp.org
+server 3.hk.pool.ntp.org
+fudge   127.127.1.0 stratum 10
+driftfile /var/lib/ntp/ntp.drift
+logfile /var/log/ntp.log
+" >/etc/ntp.conf
+
+echo -ne "
+resolv-file=/etc/resolv.conf
+conf-dir=/etc/dnsmasq.d/,*.conf
+listen-address=0.0.0.0
+strict-order
+expand-hosts
+domain-needed
+bogus-priv
+dhcp-lease-max=86400
+dhcp-leasefile=/var/lib/dnsmasq/dnsmasq.leases
+cache-size=2048
+dhcp-option=option:router,$ROUTE_IP
+dhcp-option=option:ntp-server,$SERVER
+dhcp-option=option:dns-server,$SERVER
+domain=$DOMAIN_SUFFIX
+local=/$DOMAIN_SUFFIX/
+" >>/etc/cobbler/dnsmasq.template
 
 chkconfig iptables off
 service iptables stop
@@ -30,12 +65,15 @@ sed -i 's/net.ipv4.ip_forward = 0/net.ipv4.ip_forward = 1/' /etc/sysctl.conf
 chkconfig httpd on
 chkconfig cobblerd on
 chkconfig dnsmasq on
+chkconfig ntpd on
 
 sed -i '/disable/c\\tdisable\t\t\t= no' /etc/xinetd.d/tftp
 
 service xinetd start
+service dnsmasq start
 service cobblerd start
 service httpd start
+service ntpd start
 
 cobbler get-loaders
 
@@ -140,13 +178,33 @@ cobbler reposync
 #cobbler system add --name=00:24:E8:64:24:59 --profile=autoraid --mac=00:24:E8:64:24:59
 
 #添加需要安装系统的节点 和 配置eth0 eth1 . cobbler会把 dns-name和ip写入DNS记录中，用于DNS解析
-#bound
-#cobbler system add --name=192.168.98.136 --profile=centos6.6 --hostname=GZNS-NGINX-161-32 --dns-name=GZNS-NGINX-161-32.meizu.mz --interface=bond0 --interface-type=bond --bonding-opts="mode=active-backup miimon=100" --ip-address=192.168.98.136 --subnet=255.255.255.0 --gateway=192.168.98.128 --static=1 --static-routes="192.168.1.0/16:192.168.1.1 172.16.0.0/16:172.16.0.1"
+#bound bridge
 #cobbler system edit --name=192.168.98.136 --interface=eth0 --mac=00:50:56:33:77:19 --interface-type=bond_slave --interface-master=bond0
 #cobbler system edit --name=192.168.98.136 --interface=eth1 --mac=00:50:56:33:FC:99 --interface-type=bond_slave --interface-master=bond0
+#cobbler system edit --name=192.168.98.136 --interface=bond0 --interface-type=bonded_bridge_slave  --bonding-opts="mode=balance-rr miimon=100" --interface-master=br0
+#cobbler system edit --name=192.168.98.136 --interface=br0 --interface-type=bridge --bridge-opts="stp=no" --ip-address=192.168.98.136 --netmask=255.255.255.0 --static=1 --subnet=255.255.255.0 --gateway=192.168.98.1  --static-routes="192.168.1.0/16:192.168.1.1 172.16.0.0/16:172.16.0.1"
+#cobbler system edit --name=192.168.98.136 --hostname=GZNS-NGINX-161-32 --dns-name=GZNS-NGINX-161-32.meizu.mz --profile=base
+
+#bond
+#cobbler system edit --name=foo --interface=eth0 --mac=AA:BB:CC:DD:EE:F0 --interface-type=bond_slave --interface-master=bond0
+#cobbler system edit --name=foo --interface=eth1 --mac=AA:BB:CC:DD:EE:F1 --interface-type=bond_slave --interface-master=bond0
+#cobbler system edit --name=foo --interface=bond0 --interface-type=bond --bonding-opts="miimon=100 mode=balance-rr" --ip-address=192.168.1.100 --static=1 --netmask=255.255.255.0 --gateway=192.168.1.1  --static-routes="192.168.1.0/16:192.168.1.1 172.16.0.0/16:172.16.0.1"
+#cobbler system edit --name=foo --hostname=GZNS-NGINX-161-32 --dns-name=GZNS-NGINX-161-32.meizu.mz --profile=base
+
+#vlan
+#cobbler system edit --name=foo --interface=eth0 --mac=AA:BB:CC:DD:EE:F0 --static=1
+#cobbler system edit --name=foo --interface=eth0.10 --static=1 --ip-address=10.0.10.5 --subnet=255.255.255.0 --gateway=10.0.10.1  --static-routes="192.168.1.0/16:192.168.1.1 172.16.0.0/16:172.16.0.1"
+#cobbler system edit --name=foo --interface=eth0.20 --static=1 --ip-address=10.0.20.5 --subnet=255.255.255.0 --gateway=10.0.10.1  --static-routes="192.168.1.0/16:192.168.1.1 172.16.0.0/16:172.16.0.1"
+#cobbler system edit --name=foo --hostname=GZNS-NGINX-161-32 --dns-name=GZNS-NGINX-161-32.meizu.mz --profile=base
+
+#bridge
+#cobbler system edit --name=foo --interface=eth0 --mac=AA:BB:CC:DD:EE:F0 --interface-type=bridge_slave --interface-master=br0
+#cobbler system edit --name=foo --interface=eth1 --mac=AA:BB:CC:DD:EE:F1 --interface-type=bridge_slave --interface-master=br0
+#cobbler system edit --name=foo --interface=br0 --interface-type=bridge --bridge-opts="stp=no" --ip-address=192.168.1.100 --netmask=255.255.255.0 --static=1 --netmask=255.255.255.0 --gateway=192.168.1.1  --static-routes="192.168.1.0/16:192.168.1.1 172.16.0.0/16:172.16.0.1"
+#cobbler system edit --name=foo --hostname=GZNS-NGINX-161-32 --dns-name=GZNS-NGINX-161-32.meizu.mz --profile=base
 
 #docker host
-#cobbler system add --name=192.168.10.161 --hostname=GZNS-NGINX-161-32 --dns-name=GZNS-NGINX-161-32.meizu.mz  --mac=00:24:E8:64:24:59 --ip-address=192.168.10.161 --subnet=255.255.255.0 --gateway=192.168.10.5 --interface=eth0 --static=1 --profile=docker --ksmeta="host_type=docker" --hostname=test.meizu.com --name-servers=192.168.10.160
+#cobbler system add --name=192.168.10.161 --hostname=GZNS-NGINX-161-32 --dns-name=GZNS-NGINX-161-32.meizu.mz  --mac=00:24:E8:64:24:59 --ip-address=192.168.10.161 --subnet=255.255.255.0 --gateway=192.168.10.1 --interface=eth0 --static=1 --profile=docker --ksmeta="host_type=docker" --hostname=test.meizu.com --name-servers=192.168.10.160
 
 #kvm host
-#cobbler system add --name=192.168.10.161 --hostname=GZNS-NGINX-161-32 --dns-name=GZNS-NGINX-161-32.meizu.mz --mac=00:24:E8:64:24:59 --ip-address=192.168.10.161 --subnet=255.255.255.0 --gateway=192.168.10.5 --interface=eth0 --static=1 --profile=kvm --ksmeta="host_type=kvm" --hostname=test.meizu.com --name-servers=192.168.10.160
+#cobbler system add --name=192.168.10.161 --hostname=GZNS-NGINX-161-32 --dns-name=GZNS-NGINX-161-32.meizu.mz --mac=00:24:E8:64:24:59 --ip-address=192.168.10.161 --subnet=255.255.255.0 --gateway=192.168.10.1 --interface=eth0 --static=1 --profile=kvm --ksmeta="host_type=kvm" --hostname=test.meizu.com --name-servers=192.168.10.160
