@@ -40,12 +40,10 @@ logfile /var/log/ntp.log
 echo -ne "
 resolv-file=/etc/resolv.conf
 conf-dir=/etc/dnsmasq.d/,*.conf
-listen-address=0.0.0.0
 strict-order
 expand-hosts
 domain-needed
 bogus-priv
-dhcp-lease-max=86400
 dhcp-leasefile=/var/lib/dnsmasq/dnsmasq.leases
 cache-size=2048
 dhcp-option=option:router,$ROUTE_IP
@@ -144,7 +142,7 @@ cobbler repo add --name=cloudera-gplextras5 --mirror=https://archive.cloudera.co
 cobbler repo add --name=percona --mirror=http://repo.percona.com/release/centos/latest/RPMS/x86_64/ --arch=x86_64 --breed=yum
 cobbler repo add --name=mesosphere --mirror=http://repos.mesosphere.io/el/7/x86_64 --arch=x86_64 --breed=yum
 
-cobbler distro add --name=centos --kernel=http://mirrors.ustc.edu.cn/centos/7.2.1511/os/x86_64/images/pxeboot/vmlinuz --initrd=http://mirrors.ustc.edu.cn/centos/7.2.1511/os/x86_64/images/pxeboot/initrd.img --arch=x86_64 --kopts="selinux=disabled"
+cobbler distro add --name=centos --kernel=http://mirrors.ustc.edu.cn/centos/7/os/x86_64/isolinux/vmlinuz --initrd=http://mirrors.ustc.edu.cn/centos/7/os/x86_64/isolinux/initrd.img --arch=x86_64 --kopts="selinux=disabled"
 
 #添加系统ks类型
 cobbler profile add --name=base --kickstart=/var/lib/cobbler/kickstarts/base.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel  mesosphere percona" 
