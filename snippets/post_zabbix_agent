@@ -1,0 +1,6 @@
+yum install -y zabbix-agent
+chkconfig zabbix-agent on
+
+#open-falcon agent
+yum install -y falcon-agent
+

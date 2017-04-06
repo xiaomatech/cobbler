@@ -1,0 +1,209 @@
+###ssh config###########
+sed -i 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
+sed -i 's/^GSSAPIAuthentication yes$/GSSAPIAuthentication no/' /etc/ssh/sshd_config
+sed -i 's/^PasswordAuthentication yes$/PasswordAuthentication no/' /etc/ssh/sshd_config
+
+###disable selinux###
+sed -i 's/SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
+
+###alias rm###
+alias rm='rm --preserve-root --verbose --interactive=once'
+
+###limits config####
+ulimit -HSn 65536  
+echo -ne "  
+*       soft     nofile  1025600
+*       hard    nofile  1025600
+*       soft     nproc   65535
+*       hard    nproc   65535
+" >>/etc/security/limits.conf
+
+echo -ne "  
+root       soft    nproc   unlimited
+*          soft    nproc   65536
+" >>/etc/security/limits.d/90-nproc.conf
+
+echo -ne " 
+net.ipv4.tcp_keepalive_time = 300
+net.ipv4.tcp_keepalive_intvl = 10
+net.ipv4.tcp_keepalive_probes = 5
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.tcp_tw_recycle = 1
+net.ipv4.tcp_timestamps = 0
+net.ipv4.tcp_ecn = 0
+net.ipv4.tcp_sack = 1
+net.ipv4.tcp_dsack = 0
+net.ipv4.tcp_fin_timeout = 8
+net.ipv4.tcp_rmem = 4096 2097152 16777216
+net.ipv4.tcp_wmem = 4096 2097152 16777216
+net.ipv4.tcp_max_orphans = 3276800
+net.ipv4.tcp_max_tw_buckets = 4800000
+net.ipv4.tcp_no_metrics_save = 1
+net.ipv4.tcp_max_syn_backlog = 262144
+net.ipv4.tcp_synack_retries = 2
+net.ipv4.tcp_syn_retries = 2
+net.ipv4.tcp_syncookies = 1
+net.ipv4.tcp_mem = 196608 2097152 3145728
+net.ipv4.ip_local_port_range = 1024 65000
+net.core.rmem_default = 16777216
+net.core.wmem_default = 16777216
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
+net.core.somaxconn = 262144
+net.core.netdev_max_backlog = 300000
+fs.file-max = 2560000
+net.unix.max_dgram_qlen = 10000
+vm.overcommit_memory=1
+vm.min_free_kbytes=5000000
+vm.drop_caches=1
+vm.zone_reclaim_mode=0
+vm.max_map_count=655360
+vm.dirty_background_ratio=50
+vm.dirty_ratio=50
+vm.page-cluster=3
+vm.dirty_writeback_centisecs=360000
+vm.swappiness=10
+" >>/etc/sysctl.d/00-default.conf
+
+sysctl --system
+
+#lvm making
+if [ 1 -eq `grep -c cinder /etc/fstab` ]
+then
+yum -y install lvm2
+umount /dev/sda2
+pvcreate /dev/sda2
+vgcreate cinder-volumes /dev/sda2
+sed -i '/cinder-volumes/s/^/#/' /etc/fstab
+fi
+
+#disable iptables
+chkconfig iptables off
+
+#utils
+yum -y install rsyslog wget vim dstat htop iftop iotop tcpdump screen telnet tree supervisor
+chkconfig rsyslog on
+chkconfig supervisord on
+
+yum install -y tuned ethtool
+
+tuned-adm profile throughput-performance
+
+#sudoers ops
+echo '%wheel        ALL=(ALL)       NOPASSWD: ALL' >> /etc/sudoers
+useradd ops -g wheel
+
+echo "auth    required        pam_wheel.so use_uid" >> /etc/pam.d/su
+echo "auth    [ignore=1 default=ignore]       pam_wheel.so use_uid debug" >> /etc/pam.d/su
+echo "auth    required        pam_listfile.so item=user sense=deny onerr=succeed file=/etc/sudeny" >> /etc/pam.d/su
+echo "SU_WHEEL_ONLY yes" >> /etc/login.defs
+echo "root" >> /etc/sudeny
+chgrp wheel /bin/su
+chmod 4750 /bin/su
+
+#remove some soft
+yum remove -y qt qt3 gtk2 xorg-x11-font-utils xorg-x11-drv-ati-firmware
+
+#wget some repo
+wget http://${http_server}/cobbler/ks_mirror/custom/company.repo -P /etc/yum.repos.d/
+
+#disable ipv6
+cat <<EOF>>/etc/modprobe.d/dist.conf
+alias net-pf-10 off
+alias ipv6 off
+EOF
+
+#initcwd 
+ip route | while read r; do sudo ip route change $r initcwnd 10;done
+
+
+ethtool -K eth0 gso off
+ethtool -K eth0 gro off
+ethtool -K eth0 tso off
+
+#python package
+yum install -y python-gevent python-simplejson python-msgpack python-requests
+
+
+#install k8s+calico
+yum install -y kubernetes-node calicao
+
+
+#init docker
+if  [ ${host_type} == 'docker' ];then
+
+	yum install -y lvm2 docker-io vconfig bridge-utils quota python-docker-py
+	
+	#disable docker0 bridge
+	ip link set dev docker0 down
+	brctl delbr docker0
+
+	# create docker vg
+	devs=`for dev in /dev/sd?;do echo $dev;done|grep -v sda`
+	pvcreate $devs
+	vgcreate docker-pool $devs
+	vgchange -a y docker-pool
+	# Create Logical Volumes for Docker
+	lvcreate -Zy -n metadata -l 1%VG  docker-pool
+	lvcreate -Wy -n data     -l 49%VG docker-pool
+	lvcreate -Wy -n volumes  -l 50%VG docker-pool
+	mkfs.xfs /dev/docker-pool/volumes
+	echo '/dev/docker-pool/volumes /volumes xfs defaults,data=ordered,nodirtime,noatime,usrquota,grpquota 0 2' >>/etc/fstab
+
+	# enforce insecure registry
+	# Disable Red Hat registry and Docker.io registry, enable private registry
+	echo -ne "  
+	DD_REGISTRY="--add-registry dockerhub.meizu.mz"
+	BLOCK_REGISTRY="--block-registry docker.io"
+	INSECURE_REGISTRY="--insecure-registry dockerhub.meizu.mz"
+	" >>/etc/sysconfig/docker
+
+	# Use direct LVM instead of loop LVM
+	sed -i /etc/sysconfig/docker-storage \
+	    -e '/DOCKER_STORAGE_OPTIONS=/ c\DOCKER_STORAGE_OPTIONS="--storage-opt dm.datadev=/dev/docker-pool/data --storage-opt dm.metadatadev=/dev/docker-pool/metadata --storage-opt dm.blocksize=512K --storage-opt dm.basesize=20G --storage-opt dm.fs=xfs --storage-opt dm.mountopt=nodiscard --storage-opt dm.blkdiscard=false"'
+
+	#config docker network
+	sed -i /etc/sysconfig/docker-network \
+	    -e '/DOCKER_STORAGE_OPTIONS=/ c\DOCKER_STORAGE_OPTIONS="--insecure-registry dockerhub.meizu.mz --iptables=false --bridge=none --dns=dns.meizu.mz"'
+
+#init kvm
+elif  [ ${host_type} == 'kvm' ];then
+
+	yum -y install libvirt qemu-kvm qemu-kvm-tools qemu-guest-agent python-virtinst libssh2 libguestfs-tools bridge-utils guestfish uml-utilies vconfig lvm2 quota libguestfs-xfs
+
+	# create datavg vm_storage_pool_vg vg
+	devs=`for dev in /dev/sd?;do echo $dev;done|grep -v sda`
+	pvcreate $devs
+	vgcreate vm_storage_pool_vg $devs
+	vgchange -a y vm_storage_pool_vg
+
+	virsh pool-define-as --name vm_storage_pool_vg --type logical —target /dev/vm_storage_pool_vg
+	virsh pool-autostart vm_storage_pool_vg
+	virsh pool-start vm_storage_pool_vg
+	
+	#disable virbr0
+	virsh net-list
+	virsh net-destroy default
+	virsh net-undefine default
+	service libvirtd restart
+
+	#add virtio module
+    	modprobe virtio
+    	modprobe virtio_blk
+    	modprobe virtio_net
+    	modprobe virtio_pci
+    	modprobe virtio_scsi
+    	modprobe virtio_console
+   	modprobe virtio_balloon
+
+    #ksm disable
+	chkconfig ksm off
+	chkconfig ksmtuned off
+
+	#hugepages on
+	mount -t hugetlbfs hugetlbfs /dev/hugepages
+	sysctl vm.nr_hugepages=516
+	echo 'always'>/sys/kernel/mm/transparent_hugepage/enabled
+	echo 'always'>/sys/kernel/mm/transparent_hugepage/defrag
+	echo 'vm.nr_hugepages=516'>/etc/sysctl.d/hugepages.conf
+fi

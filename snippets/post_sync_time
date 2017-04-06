@@ -1,0 +1,5 @@
+chkconfig ntpd on
+ntpdate $http_server
+sed -i "s/0\.centos\.pool\.ntp\.org/$http_server/" /etc/ntp.conf
+
+service sshd start

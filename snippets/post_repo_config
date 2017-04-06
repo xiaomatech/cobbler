@@ -1,0 +1,4 @@
+### Repo Setup ###
+rm -f /etc/yum.repos.d/CentOS*
+yum -y install yum-plugin-priorities
+sed -i "s/enabled = 1/enabled = 0/"  /etc/yum/pluginconf.d/priorities.conf

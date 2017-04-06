@@ -1,0 +1,6 @@
+yum -y install kernel-firmware-2.6.32-358.23.2.el6.ali.mz0608.x86_64.rpm
+yum -y install kernel/kernel-2.6.32-358.23.2.el6.ali.mz0608.x86_64.rpm
+
+echo 'modprobe toa'>>/etc/rc.local
+
+echo 'deadline' >> /sys/block/sda/queue/scheduler

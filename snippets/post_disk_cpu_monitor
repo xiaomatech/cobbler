@@ -1,0 +1,8 @@
+#disk monitor
+yum install -y smartmontools hddtemp
+smartctl --smart=on --offlineauto=on --saveauto=on /dev/sda
+chkconfig smartd on
+
+#bmc cpu monitor
+yum install -y lm_sensors
+chkconfig lm_sensors on

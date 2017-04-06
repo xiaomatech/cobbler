@@ -1,0 +1,5 @@
+#vim setting
+sed -i "8 s/^/alias vi='vim'/" /root/.bashrc
+echo 'syntax on' > /root/.vimrc
+
+cp /etc/skel/.bash* /root/

@@ -1,0 +1,45 @@
+# Install Robin's public key for root user
+SSH_PUB_KEY=`cat /root/.ssh/id_rsa.pub`
+cd /root
+mkdir --mode=700 .ssh
+cat >> .ssh/authorized_keys << PUBLIC_KEY
+$SSH_PUB_KEY
+PUBLIC_KEY
+chmod 600 .ssh/authorized_keys
+cat >> /etc/ssh/ssh_config <<EOF
+ForwardAgent no
+ForwardX11 no
+RhostsAuthentication no
+RhostsRSAAuthentication no
+RSAAuthentication yes
+PasswordAuthentication yes
+FallBackToRsh no
+UseRsh no
+BatchMode no
+StrictHostKeyChecking no
+UserKnownHostsFile /dev/null
+ServerAliveInterval 60
+ServerAliveCountMax 5
+ControlMaster auto
+ControlPath ~/.ssh/sockets/%r@%h-%p
+ControlPersist 4h
+EOF
+
+cat >> /etc/ssh/sshd_config <<EOF
+HostKey /etc/ssh/ssh_host_key
+ServerKeyBits 1024
+LoginGraceTime 600
+KeyRegenerationInterval 3600
+IgnoreRhosts yes
+IgnoreUserKnownHosts yes
+StrictModes yes
+X11Forwarding no
+PrintMotd yes
+SyslogFacility AUTH
+LogLevel INFO
+RhostsAuthentication no
+RhostsRSAAuthentication no
+RSAAuthentication yes
+PasswordAuthentication yes
+PermitEmptyPasswords no
+EOF

@@ -1,0 +1,15 @@
+act_mem=`cat /proc/meminfo | grep MemTotal | awk '{printf("%d",$2/1024)}'`
+echo "" > /tmp/partition.ks
+echo "clearpart --all --initlabel" >> /tmp/partition.ks
+echo "part /boot --fstype=ext4 --asprimary --size=200 --ondisk=sda" >> /tmp/partition.ks
+echo "part swap --fstype=swap --size=${act_mem} --asprimary --label=swap --ondisk=sda" >> /tmp/partition.ks
+
+if [ ${host_type} = 'cinder' ]; then
+	echo "part /cinder-volumes --fstype=ext4 --size=900000" >> /tmp/partition.ks
+	echo "part / --fstype=ext4 --size=10000 --asprimary --label=/" >> /tmp/partition.ks
+	echo "part /data --fstype=xfs --fsoptions=nobarrier --grow --size=1 --asprimary --label=/data" >> /tmp/partition.ks
+	
+else
+	echo "part / --fstype=ext4 --size=10000 --asprimary --label=/ --ondisk=sda " >> /tmp/partition.ks
+	echo "part /data --fstype=xfs --fsoptions=nobarrier --grow --size=1 --asprimary --label=/data --ondisk=sda" >> /tmp/partition.ks
+fi

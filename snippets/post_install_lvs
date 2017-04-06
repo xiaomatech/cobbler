@@ -1,0 +1,25 @@
+#use ali_lvs
+yum remove -y kernel-devel kernel-firmware
+yum install -y kernel-firmware-2.6.32-279.22.1.el6.lvs
+yum install -y kernel-2.6.32-279.22.1.el6.lvs
+
+#lvs-tools
+yum install -y lvs-tools
+
+chkconfig keepalived on
+
+#gw ip gro/lro
+
+interfaces=`ifconfig | grep ^e | awk '{print $1}' | fgrep -v :`
+
+for t_iface in $interfaces ; do
+	ethtool -K $t_iface gro off
+	ethtool -K $t_iface lro off
+
+	ethtool -K $t_iface gso off
+	ethtool -K $t_iface tso off
+done
+
+
+
+chkconfig irqbalance off

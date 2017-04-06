@@ -1,0 +1,2 @@
+services --disabled acpid,anacron,iscsi,iscsid,cups,atd,auditd,autofs,avahi-daemon,bluetooth,cpuspeed,firstboot,gpm,haldaemon,hidd,ip6tables,iptables,kudzu,lvm2-monitor,mcstrans,mdmonitor,messagebus,microcodebus,microcode_ctl,netfs,nfslock,pcscd,portmap,rawdevices,readahead_early,restorecond,rpcgssd,rpcidmapd,sendmail,setroubleshoot,smartd,xfs,yum-updatesd,abrt-ccpp,abrt-oops,abrtd,kdump,postfix,udev-post,irqbalance
+services --enabled network,sshd,ntpd,rsyslog,crond
