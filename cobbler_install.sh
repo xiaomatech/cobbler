@@ -206,3 +206,5 @@ cobbler reposync
 
 #kvm host
 #cobbler system add --name=192.168.10.161 --hostname=GZNS-NGINX-161-32 --dns-name=GZNS-NGINX-161-32.meizu.mz --mac=00:24:E8:64:24:59 --ip-address=192.168.10.161 --subnet=255.255.255.0 --gateway=192.168.10.1 --interface=eth0 --static=1 --profile=kvm --ksmeta="host_type=kvm" --hostname=test.meizu.com --name-servers=192.168.10.160
+
+#multiple subnets/gateways use dhcp-tag https://www.redhat.com/archives/et-mgmt-tools/2007-September/msg00055.html
