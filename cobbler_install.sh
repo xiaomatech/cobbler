@@ -32,6 +32,7 @@ restrict 10.0.0.0 mask 255.0.0.0
 server 0.cn.pool.ntp.org
 server 1.cn.pool.ntp.org
 server 3.hk.pool.ntp.org
+server 127.127.1.0
 fudge   127.127.1.0 stratum 10
 driftfile /var/lib/ntp/ntp.drift
 logfile /var/log/ntp.log
