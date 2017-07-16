@@ -50,6 +50,6 @@ ntp
 wget
 vim
 yum
-nc
+authconfig
 openssh-server
 openssh-clients

@@ -61,6 +61,9 @@ $SNIPPET('pre_packages')
 ipa-server
 ipa-server-trust-ad
 bind
+ipa-server-dns
+ipa-admintools
+rng-tools
 bind-dyndb-ldap
 %end
 
