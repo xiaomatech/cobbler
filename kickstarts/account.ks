@@ -58,6 +58,10 @@ $SNIPPET('pre_partition')
 #%packages
 %packages
 $SNIPPET('pre_packages')
+ipa-server
+ipa-server-trust-ad
+bind
+bind-dyndb-ldap
 %end
 
 %post
@@ -91,6 +95,9 @@ $SNIPPET('post_zabbix_agent')
 
 #affinity
 $SNIPPET('set_affinity')
+
+#accout server
+$SNIPPET('post_account_server')
 
 # Start final steps
 $SNIPPET('publickey_root_robin')

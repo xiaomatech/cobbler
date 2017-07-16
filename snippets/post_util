@@ -67,18 +67,10 @@ vm.swappiness=10
 
 sysctl --system
 
-#lvm making
-if [ 1 -eq `grep -c cinder /etc/fstab` ]
-then
-yum -y install lvm2
-umount /dev/sda2
-pvcreate /dev/sda2
-vgcreate cinder-volumes /dev/sda2
-sed -i '/cinder-volumes/s/^/#/' /etc/fstab
-fi
-
 #disable iptables
 chkconfig iptables off
+systemctl stop firewalld
+systemctl disable firewalld
 
 #utils
 yum -y install rsyslog wget vim dstat htop iftop iotop tcpdump screen telnet tree supervisor
@@ -188,15 +180,15 @@ elif  [ ${host_type} == 'kvm' ];then
 	service libvirtd restart
 
 	#add virtio module
-    	modprobe virtio
-    	modprobe virtio_blk
-    	modprobe virtio_net
-    	modprobe virtio_pci
-    	modprobe virtio_scsi
-    	modprobe virtio_console
-   	modprobe virtio_balloon
+  modprobe virtio
+  modprobe virtio_blk
+  modprobe virtio_net
+  modprobe virtio_pci
+  modprobe virtio_scsi
+  modprobe virtio_console
+  modprobe virtio_balloon
 
-    #ksm disable
+  #ksm disable
 	chkconfig ksm off
 	chkconfig ksmtuned off
 
@@ -207,3 +199,6 @@ elif  [ ${host_type} == 'kvm' ];then
 	echo 'always'>/sys/kernel/mm/transparent_hugepage/defrag
 	echo 'vm.nr_hugepages=516'>/etc/sysctl.d/hugepages.conf
 fi
+
+#identity host
+ipa-client-install --unattended -w change_secret

@@ -43,6 +43,8 @@
 -virt-what
 -words
 -xz
+dstat
+ipa-client
 dhclient
 ntp
 wget
