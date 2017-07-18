@@ -201,4 +201,4 @@ elif  [ ${host_type} == 'kvm' ];then
 fi
 
 #identity host
-ipa-client-install --unattended -w change_secret
+ipa-client-install -enable-dns-updates -U --domain=meizu.mz --realm=MEIZU.MZ --server=idm1.meizu.mz --mkhomedir --unattended --force-join --all-ip-addresses -p join_account -w join_passwd 
