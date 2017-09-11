@@ -1,5 +1,3 @@
-tuned-adm profile throughput-performance
-
 ###ssh config###########
 sed -i 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
 sed -i 's/^GSSAPIAuthentication yes$/GSSAPIAuthentication no/' /etc/ssh/sshd_config
@@ -69,12 +67,8 @@ vm.swappiness=10
 
 sysctl --system
 
-echo -ne "
-echo never > /sys/kernel/mm/transparent_hugepage/enabled
-echo never > /sys/kernel/mm/transparent_hugepage/defrag
-">>/etc/rc.local
 
-#disable transparent_hugepage
+
 
 #disable iptables
 chkconfig iptables off
@@ -87,6 +81,11 @@ chkconfig rsyslog on
 chkconfig supervisord on
 
 yum install -y tuned ethtool
+
+#disable transparent_hugepage
+sed -i 's/transparent_hugepages=always/transparent_hugepages=never/g' /usr/lib/tuned/throughput-performance/tuned.conf
+
+tuned-adm profile throughput-performance
 
 #sudoers ops
 echo '%wheel        ALL=(ALL)       NOPASSWD: ALL' >> /etc/sudoers
