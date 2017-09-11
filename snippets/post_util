@@ -1,3 +1,5 @@
+tuned-adm profile throughput-performance
+
 ###ssh config###########
 sed -i 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
 sed -i 's/^GSSAPIAuthentication yes$/GSSAPIAuthentication no/' /etc/ssh/sshd_config
@@ -67,6 +69,15 @@ vm.swappiness=10
 
 sysctl --system
 
+echo -ne "
+echo never >/sys/kernel/mm/redhat_transparent_hugepage/defrag
+echo never > /sys/kernel/mm/redhat_transparent_hugepage/enabled
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+echo never > /sys/kernel/mm/transparent_hugepage/defrag
+">>/etc/rc.local
+
+#disable transparent_hugepage
+
 #disable iptables
 chkconfig iptables off
 systemctl stop firewalld
@@ -78,8 +89,6 @@ chkconfig rsyslog on
 chkconfig supervisord on
 
 yum install -y tuned ethtool
-
-tuned-adm profile throughput-performance
 
 #sudoers ops
 echo '%wheel        ALL=(ALL)       NOPASSWD: ALL' >> /etc/sudoers
@@ -117,8 +126,8 @@ ethtool -K eth0 tso off
 yum install -y python-gevent python-simplejson python-msgpack python-requests
 
 
-#install k8s+calico
-yum install -y kubernetes-node calicao
+#install k8s
+yum install -y kubernetes-node
 
 
 #init docker
@@ -180,15 +189,11 @@ elif  [ ${host_type} == 'kvm' ];then
 	service libvirtd restart
 
 	#add virtio module
-  modprobe virtio
-  modprobe virtio_blk
-  modprobe virtio_net
-  modprobe virtio_pci
-  modprobe virtio_scsi
-  modprobe virtio_console
-  modprobe virtio_balloon
-
-  #ksm disable
+        modprobe virtio
+        modprobe virtio_blk
+        modprobe virtio_net
+        modprobe virtio_pci
+        #ksm disable
 	chkconfig ksm off
 	chkconfig ksmtuned off
 
