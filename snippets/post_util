@@ -4,6 +4,8 @@ sed -i 's/^GSSAPIAuthentication yes$/GSSAPIAuthentication no/' /etc/ssh/sshd_con
 sed -i 's/^PasswordAuthentication yes$/PasswordAuthentication no/' /etc/ssh/sshd_config
 
 ###disable selinux###
+service firewalld stop
+chkconfig firewalld off
 sed -i 's/SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
 
 ###alias rm###
