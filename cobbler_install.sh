@@ -136,6 +136,7 @@ cobbler repo add --name=ceph-hammer --breed=yum --mirror=http://mirrors.ustc.edu
 cobbler repo add --name=updates --breed=yum --mirror=http://mirrors.ustc.edu.cn/centos/7/updates/x86_64/
 cobbler repo add --name=glusterfs --breed=yum --mirror=http://mirrors.ustc.edu.cn/centos/7/storage/x86_64/gluster-3.9/
 cobbler repo add --name=epel --mirror=http://mirrors.ustc.edu.cn/epel/7/x86_64/ --arch=x86_64 --breed=yum
+cobbler repo add --name=kernel --breed=yum --mirror=http://elrepo.org/linux/kernel/el7/x86_64/
 cobbler repo add --name=cloudera --mirror=http://archive-primary.cloudera.com/cdh5/redhat/7/x86_64/cdh/5/ --arch=x86_64 --breed=yum
 cobbler repo add --name=cloudera-kudu --mirror=http://archive.cloudera.com/beta/kudu/redhat/7/x86_64/kudu/1/ --arch=x86_64 --breed=yum
 cobbler repo add --name=cloudera-impala-kudu --mirror=http://archive.cloudera.com/beta/impala-kudu/redhat/7/x86_64/impala-kudu/1/ --arch=x86_64 --breed=yum
@@ -145,13 +146,13 @@ cobbler repo add --name=percona --mirror=http://repo.percona.com/release/centos/
 cobbler distro add --name=centos --kernel=http://mirrors.ustc.edu.cn/centos/7/os/x86_64/isolinux/vmlinuz --initrd=http://mirrors.ustc.edu.cn/centos/7/os/x86_64/isolinux/initrd.img --arch=x86_64 --kopts="selinux=disabled"
 
 #添加系统ks类型
-cobbler profile add --name=base --kickstart=/var/lib/cobbler/kickstarts/base.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel  percona" 
-cobbler profile add --name=mysql --kickstart=/var/lib/cobbler/kickstarts/mysql.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel  percona" 
-cobbler profile add --name=lvs --kickstart=/var/lib/cobbler/kickstarts/lvs.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel percona" 
+cobbler profile add --name=base --kickstart=/var/lib/cobbler/kickstarts/base.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel  percona" 
+cobbler profile add --name=mysql --kickstart=/var/lib/cobbler/kickstarts/mysql.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel  percona" 
+cobbler profile add --name=lvs --kickstart=/var/lib/cobbler/kickstarts/lvs.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel percona" 
 #docker
-cobbler profile add --name=docker --ksmeta='host_type=docker' --kickstart=/var/lib/cobbler/kickstarts/base.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5  epel percona"  
+cobbler profile add --name=docker --ksmeta='host_type=docker' --kickstart=/var/lib/cobbler/kickstarts/base.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5  epel percona"  
 #kvm
-cobbler profile add --name=kvm --ksmeta='host_type=kvm' --kickstart=/var/lib/cobbler/kickstarts/base.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel percona" 
+cobbler profile add --name=kvm --ksmeta='host_type=kvm' --kickstart=/var/lib/cobbler/kickstarts/base.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel percona" 
 #同步配置
 cobbler sync
 
