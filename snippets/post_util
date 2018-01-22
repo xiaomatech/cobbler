@@ -104,7 +104,7 @@ chgrp wheel /bin/su
 chmod 4750 /bin/su
 
 #remove some soft
-yum remove -y qt qt3 gtk2 xorg-x11-font-utils xorg-x11-drv-ati-firmware
+yum remove -y qt qt3 gtk2 xorg-x11-font-utils xorg-x11-drv-ati-firmware abrt
 
 #wget some repo
 wget http://${http_server}/cobbler/ks_mirror/custom/company.repo -P /etc/yum.repos.d/
@@ -115,21 +115,12 @@ alias net-pf-10 off
 alias ipv6 off
 EOF
 
-#initcwd 
-ip route | while read r; do sudo ip route change $r initcwnd 10;done
-
-
 ethtool -K eth0 gso off
 ethtool -K eth0 gro off
 ethtool -K eth0 tso off
 
 #python package
-yum install -y python-gevent python-simplejson python-msgpack python-requests
-
-
-#install k8s
-yum install -y kubernetes-node
-
+yum install -y python36u-devel python36u-gunicorn python36u-lxml python36u-pip python36u-redis
 
 #init docker
 if  [ ${host_type} == 'docker' ];then
@@ -205,6 +196,13 @@ elif  [ ${host_type} == 'kvm' ];then
 	echo 'always'>/sys/kernel/mm/transparent_hugepage/defrag
 	echo 'vm.nr_hugepages=516'>/etc/sysctl.d/hugepages.conf
 fi
+
+#pip.conf
+mkdir -p /root/.pip
+echo '
+[global]
+index-url=http://${http_server}/pypi/simple/
+' > /root/.pip/pip.conf
 
 #identity host
 ipa-client-install -enable-dns-updates -U --domain=meizu.mz --realm=MEIZU.MZ --server=idm1.meizu.mz --mkhomedir --unattended --force-join --all-ip-addresses -p join_account -w join_passwd 
