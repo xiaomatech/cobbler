@@ -142,17 +142,18 @@ cobbler repo add --name=cloudera-kudu --mirror=http://archive.cloudera.com/beta/
 cobbler repo add --name=cloudera-impala-kudu --mirror=http://archive.cloudera.com/beta/impala-kudu/redhat/7/x86_64/impala-kudu/1/ --arch=x86_64 --breed=yum
 cobbler repo add --name=cloudera-gplextras5 --mirror=https://archive.cloudera.com/gplextras5/redhat/7/x86_64/gplextras/5/ --arch=x86_64 --breed=yum
 cobbler repo add --name=percona --mirror=http://repo.percona.com/release/centos/latest/RPMS/x86_64/ --arch=x86_64 --breed=yum
+cobbler repo add --name=python36 --mirror=https://dl.iuscommunity.org/pub/ius/stable/CentOS/7/x86_64/ --arch=x86_64 --breed=yum
 
 cobbler distro add --name=centos --kernel=http://mirrors.ustc.edu.cn/centos/7/os/x86_64/isolinux/vmlinuz --initrd=http://mirrors.ustc.edu.cn/centos/7/os/x86_64/isolinux/initrd.img --arch=x86_64 --kopts="selinux=disabled"
 
 #添加系统ks类型
-cobbler profile add --name=base --kickstart=/var/lib/cobbler/kickstarts/base.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel  percona" 
-cobbler profile add --name=mysql --kickstart=/var/lib/cobbler/kickstarts/mysql.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel  percona" 
-cobbler profile add --name=lvs --kickstart=/var/lib/cobbler/kickstarts/lvs.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel percona" 
+cobbler profile add --name=base --kickstart=/var/lib/cobbler/kickstarts/base.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel  percona python36" 
+cobbler profile add --name=mysql --kickstart=/var/lib/cobbler/kickstarts/mysql.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel  percona python36" 
+cobbler profile add --name=lvs --kickstart=/var/lib/cobbler/kickstarts/lvs.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel percona python36" 
 #docker
-cobbler profile add --name=docker --ksmeta='host_type=docker' --kickstart=/var/lib/cobbler/kickstarts/base.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5  epel percona"  
+cobbler profile add --name=docker --ksmeta='host_type=docker' --kickstart=/var/lib/cobbler/kickstarts/base.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5  epel percona python36"  
 #kvm
-cobbler profile add --name=kvm --ksmeta='host_type=kvm' --kickstart=/var/lib/cobbler/kickstarts/base.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel percona" 
+cobbler profile add --name=kvm --ksmeta='host_type=kvm' --kickstart=/var/lib/cobbler/kickstarts/base.ks --distro=centos --repos="centos extras kvm-common ceph-hammer glusterfs updates kernel cloudera cloudera-kudu cloudera-impala-kudu cloudera-gplextras5 epel percona python36" 
 #同步配置
 cobbler sync
 
@@ -162,6 +163,9 @@ systemctl restart dnsmasq
 
 #同步仓库
 cobbler reposync
+
+#创建pypi私有仓库
+curl -s https://raw.githubusercontent.com/xiaomatech/requirements/master/pypi.sh | bash -s -- 
 
 #跨机房部署
 #cobbler replicate –master=cobbler-ns.meizu.mz  –distros=* –profiles=* –systems=* –repos-* –images=* --prune
