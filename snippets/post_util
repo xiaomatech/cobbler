@@ -119,9 +119,6 @@ ethtool -K eth0 gso off
 ethtool -K eth0 gro off
 ethtool -K eth0 tso off
 
-#python package
-yum install -y python36u-devel python36u-gunicorn python36u-lxml python36u-pip python36u-redis
-
 #init docker
 if  [ ${host_type} == 'docker' ];then
 
@@ -205,4 +202,4 @@ index-url=http://${http_server}/pypi/simple/
 ' > /root/.pip/pip.conf
 
 #identity host
-ipa-client-install -enable-dns-updates -U --domain=meizu.mz --realm=MEIZU.MZ --server=idm1.meizu.mz --mkhomedir --unattended --force-join --all-ip-addresses -p join_account -w join_passwd 
+#ipa-client-install -enable-dns-updates -U --domain=meizu.mz --realm=MEIZU.MZ --server=idm1.meizu.mz --mkhomedir --unattended --force-join --all-ip-addresses -p join_account -w join_passwd 
