@@ -4,7 +4,22 @@ echo "clearpart --all --initlabel" >> /tmp/partition.ks
 echo "part /boot --fstype=xfs --asprimary --size=200 --ondisk=sda" >> /tmp/partition.ks
 echo "part swap --fstype=swap --size=${act_mem} --asprimary --label=swap --ondisk=sda" >> /tmp/partition.ks
 echo "part / --fstype=xfs --size=10000 --asprimary --label=/ --ondisk=sda " >> /tmp/partition.ks
-echo "part /var --fstype=xfs --size=20000 --asprimary --label=/var --ondisk=sda " >> /tmp/partition.ks
+echo "part /var/log --fstype=xfs --size=20000 --asprimary --label=/var --ondisk=sda " >> /tmp/partition.ks
 echo "part /opt --fstype=xfs --size=50000 --asprimary --label=/home --ondisk=sda " >> /tmp/partition.ks
-echo "part /data --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --size=1 --asprimary --label=/data --ondisk=sda" >> /tmp/partition.ks
+echo "part /data --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --label=/data --ondisk=sda" >> /tmp/partition.ks
+echo "part /data0 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdb" >> /tmp/partition.ks
+echo "part /data1 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdc" >> /tmp/partition.ks
+echo "part /data2 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdd" >> /tmp/partition.ks
+echo "part /data3 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sde" >> /tmp/partition.ks
+echo "part /data4 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdf" >> /tmp/partition.ks
+echo "part /data5 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdg" >> /tmp/partition.ks
+echo "part /data6 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdh" >> /tmp/partition.ks
+echo "part /data7 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdi" >> /tmp/partition.ks
+echo "part /data8 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdj" >> /tmp/partition.ks
+echo "part /data9 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdk" >> /tmp/partition.ks
+echo "part /data10 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdl" >> /tmp/partition.ks
+echo "part /data11 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdm" >> /tmp/partition.ks
+echo "part /data12 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdn" >> /tmp/partition.ks
+
+
 
