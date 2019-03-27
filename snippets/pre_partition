@@ -21,5 +21,24 @@ echo "part /data10 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratim
 echo "part /data11 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdm" >> /tmp/partition.ks
 echo "part /data12 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdn" >> /tmp/partition.ks
 
+#part raid.1001 --fstype="mdmember" --ondisk=sdb --size=20000 
+#part raid.1002 --fstype="mdmember" --ondisk=sdc --size=20000 
+#part raid.1003 --fstype="mdmember" --ondisk=sdd --size=20000 
+#part raid.1004 --fstype="mdmember" --ondisk=sde --size=20000 
+#part raid.2001 --fstype="mdmember" --ondisk=sdb --size=20000 
+#part raid.2002 --fstype="mdmember" --ondisk=sdc --size=20000 
+#part raid.2003 --fstype="mdmember" --ondisk=sdd --size=20000 
+#part raid.2004 --fstype="mdmember" --ondisk=sde --size=20000 
+#part raid.3001 --fstype="mdmember" --ondisk=sdb --size=20000 
+#part raid.3002 --fstype="mdmember" --ondisk=sdc --size=20000 
+#part raid.3003 --fstype="mdmember" --ondisk=sdd --size=20000 
+#part raid.3004 --fstype="mdmember" --ondisk=sde --size=20000 
+#part raid.4001 --fstype="mdmember" --ondisk=sdb --grow
+#part raid.4002 --fstype="mdmember" --ondisk=sdc --grow
+#part raid.4003 --fstype="mdmember" --ondisk=sdd --grow
+#part raid.4004 --fstype="mdmember" --ondisk=sde --grow
 
-
+#raid /data0 --device=data0 --fstype="xfs" --level=RAID10 raid.1001 raid.1002 raid.1003 raid.1004
+#raid /data1 --device=data1 --fstype="xfs" --level=RAID10 raid.2001 raid.2002 raid.2003 raid.2004
+#raid /data2 --device=data2 --fstype="xfs" --level=RAID10 raid.3001 raid.3002 raid.3003 raid.3004
+#raid /data3 --device=data2 --fstype="xfs" --level=RAID10 raid.4001 raid.4002 raid.4003 raid.4004
