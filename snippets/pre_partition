@@ -3,9 +3,9 @@ echo "part biosboot --fstype=biosboot --size=1" > /tmp/partition.ks
 echo "clearpart --all --initlabel --disklabel=gpt" >> /tmp/partition.ks
 echo "part /boot --fstype=xfs --asprimary --size=200 --ondisk=sda" >> /tmp/partition.ks
 echo "part swap --fstype=swap --size=${act_mem} --asprimary --label=swap --ondisk=sda" >> /tmp/partition.ks
-echo "part / --fstype=xfs --size=10000 --asprimary --label=/ --ondisk=sda " >> /tmp/partition.ks
-echo "part /var/log --fstype=xfs --size=20000 --asprimary --label=/var --ondisk=sda " >> /tmp/partition.ks
-echo "part /opt --fstype=xfs --size=50000 --asprimary --label=/home --ondisk=sda " >> /tmp/partition.ks
+echo "part / --fstype=xfs --size=10240 --asprimary --label=/ --ondisk=sda " >> /tmp/partition.ks
+echo "part /var/log --fstype=xfs --size=20480 --asprimary --label=/var --ondisk=sda " >> /tmp/partition.ks
+echo "part /opt --fstype=xfs --size=40960 --asprimary --label=/home --ondisk=sda " >> /tmp/partition.ks
 echo "part /data --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --label=/data --ondisk=sda" >> /tmp/partition.ks
 echo "part /data0 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdb" >> /tmp/partition.ks
 echo "part /data1 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdc" >> /tmp/partition.ks
@@ -21,18 +21,18 @@ echo "part /data10 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratim
 echo "part /data11 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdm" >> /tmp/partition.ks
 echo "part /data12 --fstype=xfs --fsoptions=defaults,nobarrier,noatime,nodiratime,discard --grow --asprimary --ondisk=sdn" >> /tmp/partition.ks
 
-#part raid.1001 --fstype="mdmember" --ondisk=sdb --size=20000 
-#part raid.1002 --fstype="mdmember" --ondisk=sdc --size=20000 
-#part raid.1003 --fstype="mdmember" --ondisk=sdd --size=20000 
-#part raid.1004 --fstype="mdmember" --ondisk=sde --size=20000 
-#part raid.2001 --fstype="mdmember" --ondisk=sdb --size=20000 
-#part raid.2002 --fstype="mdmember" --ondisk=sdc --size=20000 
-#part raid.2003 --fstype="mdmember" --ondisk=sdd --size=20000 
-#part raid.2004 --fstype="mdmember" --ondisk=sde --size=20000 
-#part raid.3001 --fstype="mdmember" --ondisk=sdb --size=20000 
-#part raid.3002 --fstype="mdmember" --ondisk=sdc --size=20000 
-#part raid.3003 --fstype="mdmember" --ondisk=sdd --size=20000 
-#part raid.3004 --fstype="mdmember" --ondisk=sde --size=20000 
+#part raid.1001 --fstype="mdmember" --ondisk=sdb --size=40960 
+#part raid.1002 --fstype="mdmember" --ondisk=sdc --size=40960 
+#part raid.1003 --fstype="mdmember" --ondisk=sdd --size=40960 
+#part raid.1004 --fstype="mdmember" --ondisk=sde --size=40960 
+#part raid.2001 --fstype="mdmember" --ondisk=sdb --size=40960 
+#part raid.2002 --fstype="mdmember" --ondisk=sdc --size=40960 
+#part raid.2003 --fstype="mdmember" --ondisk=sdd --size=40960 
+#part raid.2004 --fstype="mdmember" --ondisk=sde --size=40960 
+#part raid.3001 --fstype="mdmember" --ondisk=sdb --size=40960 
+#part raid.3002 --fstype="mdmember" --ondisk=sdc --size=40960 
+#part raid.3003 --fstype="mdmember" --ondisk=sdd --size=40960 
+#part raid.3004 --fstype="mdmember" --ondisk=sde --size=40960 
 #part raid.4001 --fstype="mdmember" --ondisk=sdb --grow
 #part raid.4002 --fstype="mdmember" --ondisk=sdc --grow
 #part raid.4003 --fstype="mdmember" --ondisk=sdd --grow
