@@ -1,6 +1,6 @@
 act_mem=`cat /proc/meminfo | grep MemTotal | awk '{printf("%d",$2/1024)}'`
 echo "part biosboot --fstype=biosboot --size=1" > /tmp/partition.ks
-echo "clearpart --all --initlabel" >> /tmp/partition.ks
+echo "clearpart --all --initlabel --disklabel=gpt" >> /tmp/partition.ks
 echo "part /boot --fstype=xfs --asprimary --size=200 --ondisk=sda" >> /tmp/partition.ks
 echo "part swap --fstype=swap --size=${act_mem} --asprimary --label=swap --ondisk=sda" >> /tmp/partition.ks
 echo "part / --fstype=xfs --size=10000 --asprimary --label=/ --ondisk=sda " >> /tmp/partition.ks
