@@ -86,9 +86,6 @@ $SNIPPET('post_sync_time')
 ### post util ###
 $SNIPPET('post_util')
 
-#zabbix agent
-$SNIPPET('post_zabbix_agent')
-
 #affinity
 $SNIPPET('set_affinity')
 
