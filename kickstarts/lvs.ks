@@ -85,8 +85,6 @@ $SNIPPET('post_sync_time')
 ### post util ###
 $SNIPPET('post_util')
 
-#zabbix agent
-$SNIPPET('post_zabbix_agent')
 
 #use ali_kernel & load toa module
 $SNIPPET('post_install_ali_kernel')
