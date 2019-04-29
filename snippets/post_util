@@ -135,8 +135,6 @@ chmod 4750 /bin/su
 #remove some soft
 yum remove -y qt qt3 gtk2 xorg-x11-font-utils xorg-x11-drv-ati-firmware abrt
 
-#wget some repo
-wget http://${http_server}/cobbler/ks_mirror/custom/company.repo -P /etc/yum.repos.d/
 
 #disable ipv6
 cat <<EOF>>/etc/modprobe.d/dist.conf
