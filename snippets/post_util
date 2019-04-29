@@ -14,57 +14,86 @@ alias rm='rm --preserve-root --verbose --interactive=once'
 ###limits config####
 ulimit -HSn 65536  
 echo -ne "  
-*       soft     nofile  1025600
-*       hard    nofile  1025600
+*       soft     nofile  4194304
+*       hard    nofile  4194304
 *       soft     nproc   65535
 *       hard    nproc   65535
 " >>/etc/security/limits.conf
+
+sed -i 's/^#DefaultLimitNOFILE=$/DefaultLimitNOFILE=1048576/g' /etc/systemd/system.conf
 
 echo -ne "  
 root       soft    nproc   unlimited
 *          soft    nproc   65536
 " >>/etc/security/limits.d/90-nproc.conf
 
+echo -ne "  
+#!/bin/bash
+export HISTFILESIZE=100000
+export HISTSIZE=1000
+export PROMPT_COMMAND="history -a"
+export HISTTIMEFORMAT="%Y-%m-%d_%H:%M:%S "
+export HISTIGNORE="history*:pwd:ls:ll"
+export HISTCONTROL="ignoredups"
+export HISTSIZE HISTFILESIZE HISTTIMEFORMAT PROMPT_COMMAND HISTIGNORE HISTCONTROL
+" >>/etc/profile.d/history.sh
+
+echo -ne "  
+#!/bin/bash
+[ "\$(id -u)" == "0" ] && ulimit -n 4194304
+ulimit -u 10000
+" >>/etc/profile.d/ulimit.sh
+
+
+chmod a+x /etc/profile.d/*.sh
+
 echo -ne " 
 net.ipv4.tcp_keepalive_time = 300
 net.ipv4.tcp_keepalive_intvl = 10
 net.ipv4.tcp_keepalive_probes = 5
 net.ipv4.tcp_tw_reuse = 1
-net.ipv4.tcp_tw_recycle = 1
 net.ipv4.tcp_timestamps = 0
-net.ipv4.tcp_ecn = 0
-net.ipv4.tcp_sack = 1
-net.ipv4.tcp_dsack = 0
-net.ipv4.tcp_fin_timeout = 8
-net.ipv4.tcp_rmem = 4096 2097152 16777216
-net.ipv4.tcp_wmem = 4096 2097152 16777216
+net.ipv4.tcp_rmem = 4096 2097152 33554432
+net.ipv4.tcp_wmem = 4096 2097152 33554432
 net.ipv4.tcp_max_orphans = 3276800
 net.ipv4.tcp_max_tw_buckets = 4800000
-net.ipv4.tcp_no_metrics_save = 1
 net.ipv4.tcp_max_syn_backlog = 262144
 net.ipv4.tcp_synack_retries = 2
 net.ipv4.tcp_syn_retries = 2
 net.ipv4.tcp_syncookies = 1
-net.ipv4.tcp_mem = 196608 2097152 3145728
 net.ipv4.ip_local_port_range = 1024 65000
-net.core.rmem_default = 16777216
-net.core.wmem_default = 16777216
-net.core.rmem_max = 16777216
-net.core.wmem_max = 16777216
+net.core.rmem_default = 67108864
+net.core.wmem_default = 67108864
+net.core.rmem_max = 67108864
+net.core.wmem_max = 67108864
 net.core.somaxconn = 262144
 net.core.netdev_max_backlog = 300000
-fs.file-max = 2560000
 net.unix.max_dgram_qlen = 10000
 vm.overcommit_memory=1
 vm.min_free_kbytes=5000000
 vm.drop_caches=1
 vm.zone_reclaim_mode=0
-vm.max_map_count=655360
+vm.max_map_count=7549747
 vm.dirty_background_ratio=50
 vm.dirty_ratio=50
 vm.page-cluster=3
 vm.dirty_writeback_centisecs=360000
 vm.swappiness=5
+
+net.ipv4.ip_forward=1
+net.netfilter.nf_conntrack_max=10485760
+net.netfilter.nf_conntrack_tcp_timeout_established=300
+net.netfilter.nf_conntrack_buckets=655360
+net.core.netdev_max_backlog=10000
+
+fs.inotify.max_user_instances=524288
+fs.inotify.max_user_watches=524288
+
+kernel.pid_max=348160
+kernel.threads-max=33029620
+kernel.pty.max=20000
+fs.file-max=42653636
+
 net.ipv4.tcp_congestion_control=bbr
 net.core.default_qdisc=fq
 " >>/etc/sysctl.d/00-default.conf
